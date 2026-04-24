@@ -1,8 +1,9 @@
-using System.Diagnostics;
 using books_crud_mvc.Models;
 using Microsoft.AspNetCore.Mvc;
+using books_crud_mvc.Models;
+using System.Diagnostics;
 
-namespace books_crud_mvc.Controllers
+namespace MVC_BooksCRUD.Controllers
 {
     public class HomeController : Controller
     {
