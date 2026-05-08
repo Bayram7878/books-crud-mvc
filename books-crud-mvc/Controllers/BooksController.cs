@@ -13,16 +13,57 @@ public class BooksController : Controller
         _context = context;
     }
 
-
-    public IActionResult Index()
+    public IActionResult Index(string search, int? categoryId, string sortOrder)
     {
         var books = _context.Books
             .Include(x => x.Category)
-            .ToList();
+            .AsQueryable();
 
-        return View(books);
+        if (!string.IsNullOrEmpty(search))
+        {
+            books = books.Where(x => x.Title.Contains(search));
+        }
+
+        if (categoryId.HasValue && categoryId > 0)
+        {
+            books = books.Where(x => x.CategoryId == categoryId);
+        }
+
+        switch (sortOrder)
+        {
+            case "title_desc":
+                books = books.OrderByDescending(x => x.Title);
+                break;
+
+            case "price_asc":
+                books = books.OrderBy(x => x.Price);
+                break;
+
+            case "price_desc":
+                books = books.OrderByDescending(x => x.Price);
+                break;
+
+            case "stock_asc":
+                books = books.OrderBy(x => x.Stock);
+                break;
+
+            case "stock_desc":
+                books = books.OrderByDescending(x => x.Stock);
+                break;
+
+            default:
+                books = books.OrderBy(x => x.Title);
+                break;
+        }
+
+        ViewBag.Categories = _context.Categories.ToList();
+
+        ViewBag.Search = search;
+        ViewBag.CategoryId = categoryId;
+        ViewBag.SortOrder = sortOrder;
+
+        return View(books.ToList());
     }
-
 
     public IActionResult Add()
     {
@@ -30,12 +71,10 @@ public class BooksController : Controller
         return View();
     }
 
-
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Add(Book newBook)
     {
-        Console.WriteLine("CATEGORY ID: " + newBook.CategoryId);
-
         if (!ModelState.IsValid)
         {
             ViewBag.Categories = _context.Categories.ToList();
@@ -44,6 +83,8 @@ public class BooksController : Controller
 
         _context.Books.Add(newBook);
         _context.SaveChanges();
+
+        TempData["Message"] = "Kitap eklendi";
 
         return RedirectToAction("Index");
     }
@@ -59,7 +100,6 @@ public class BooksController : Controller
 
         return View(book);
     }
-
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -88,7 +128,6 @@ public class BooksController : Controller
 
         return RedirectToAction("Index");
     }
-
 
     public IActionResult Remove(int id)
     {
