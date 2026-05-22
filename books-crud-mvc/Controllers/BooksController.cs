@@ -1,8 +1,7 @@
-﻿using books_crud_mvc.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using books_crud_mvc.Models;
-using System;
 
 public class BooksController : Controller
 {
@@ -77,12 +76,14 @@ public class BooksController : Controller
         return View(book);
     }
 
+    [Authorize]
     public IActionResult Add()
     {
         ViewBag.Categories = _context.Categories.ToList();
         return View();
     }
 
+    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Add(Book newBook)
@@ -101,6 +102,7 @@ public class BooksController : Controller
         return RedirectToAction("Index");
     }
 
+    [Authorize]
     public IActionResult Update(int id)
     {
         var book = _context.Books.Find(id);
@@ -113,6 +115,7 @@ public class BooksController : Controller
         return View(book);
     }
 
+    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Update(Book updatedBook)
@@ -141,6 +144,7 @@ public class BooksController : Controller
         return RedirectToAction("Index");
     }
 
+    [Authorize]
     public IActionResult Remove(int id)
     {
         var book = _context.Books.Find(id);
